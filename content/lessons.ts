@@ -10,8 +10,8 @@ export const lessons: Lesson[] = [
   {
     number: 1,
     title: 'C++ 핵심 복습과 클래스 기초',
-    description: '클래스부터 포인터와 const까지, 객체지향 2에 필요한 C++ 기초를 하나의 흐름으로 복습합니다.',
-    topics: ['클래스·객체', '생성자', '인터페이스', '배열·vector', '포인터·const'],
+    description: '강의 슬라이드와 교수님 설명, 질문 채팅을 합쳐 클래스부터 포인터와 const까지 한 흐름으로 복습합니다.',
+    topics: ['클래스·객체', '배열 3종', 'range-for', '함수 전달', '포인터·const'],
     status: 'ready',
   },
   {
@@ -30,6 +30,8 @@ export const sectionIndex = [
   { id: 'files', title: '인터페이스와 구현 분리', keywords: 'header h cpp include scope resolution 범위 지정 연산자' },
   { id: 'functions', title: '제어문과 함수', keywords: 'if switch while for parameter argument return 매개변수 인수' },
   { id: 'containers', title: '배열과 vector', keywords: 'array vector index subscript size push_back range based for 인덱스' },
+  { id: 'range-for', title: '범위 기반 for', keywords: 'range based for 값 복사 참조 const reference 원본 수정 slide 24' },
+  { id: 'passing', title: '값·참조·포인터 전달', keywords: 'pass by value reference pointer string name const string ampersand 복사 원본 매개변수' },
   { id: 'pointers', title: '포인터와 메모리', keywords: 'address dereference reference pointer ampersand asterisk 주소 역참조' },
   { id: 'const', title: '포인터와 const', keywords: '상수 포인터 데이터 변경 금지' },
   { id: 'check', title: '확인 문제', keywords: '퀴즈 정답 해설 복습' },
