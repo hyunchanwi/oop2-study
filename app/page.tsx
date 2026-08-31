@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import {
+  ArrowLeft,
   ArrowRight,
   BookOpen,
   Braces,
@@ -70,6 +71,11 @@ export default function Home() {
     document.querySelector(`#${id}`)?.scrollIntoView({ behavior: 'smooth' });
   }
 
+  function handleSearchChange(value: string) {
+    setQuery(value);
+    if (value.trim()) setMenuOpen(true);
+  }
+
   function toggleAnswer(number: number) {
     setAnswers((current) => current.includes(number) ? current.filter((item) => item !== number) : [...current, number]);
   }
@@ -89,19 +95,42 @@ export default function Home() {
         </a>
         <label className="search-box">
           <Search size={17} />
-          <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="개념이나 코드 검색" aria-label="개념이나 코드 검색" />
-          {query && <button onClick={() => setQuery('')} aria-label="검색어 지우기"><X size={16} /></button>}
+          <input
+            value={query}
+            onChange={(event) => handleSearchChange(event.target.value)}
+            onFocus={() => query.trim() && setMenuOpen(true)}
+            placeholder="개념이나 코드 검색"
+            aria-label="개념이나 코드 검색"
+            aria-controls="lesson-sidebar"
+          />
+          {query && <button onClick={() => { setQuery(''); setMenuOpen(false); }} aria-label="검색어 지우기"><X size={16} /></button>}
         </label>
-        <button className="mobile-menu" onClick={() => setMenuOpen(!menuOpen)} aria-label="목차 열기"><Menu size={21} /></button>
+        <button
+          className="mobile-menu"
+          onClick={() => setMenuOpen(!menuOpen)}
+          aria-label={menuOpen ? '목차 닫기' : '목차 열기'}
+          aria-expanded={menuOpen}
+          aria-controls="lesson-sidebar"
+        >
+          {menuOpen ? <X size={21} /> : <Menu size={21} />}
+        </button>
         <div className="header-progress" aria-label={`전체 진도 ${progress}%`}><span>{progress}%</span><div><i style={{ width: `${progress}%` }} /></div></div>
       </header>
 
       <div className="workspace" id="top">
-        <aside className={`sidebar ${menuOpen ? 'open' : ''}`}>
+        {menuOpen && <button className="sidebar-backdrop" type="button" aria-label="목차 닫기" onClick={() => setMenuOpen(false)} />}
+        <aside className={`sidebar ${menuOpen ? 'open' : ''}`} id="lesson-sidebar" aria-label="강의 탐색">
+          <a className="hub-back" href="https://hyunchanwi.github.io/study-hub/"><ArrowLeft size={15} /> 전체 과목</a>
           <div className="sidebar-heading"><span>강의 노트</span><small>{completed.length} / {lessons.length} 완료</small></div>
           <nav aria-label="강의 목차">
             {lessons.map((lesson) => (
-              <button key={lesson.number} className={lesson.number === 1 ? 'active' : ''} onClick={() => lesson.number === 1 && goToSection('class')}>
+              <button
+                key={lesson.number}
+                className={lesson.number === 1 ? 'active' : ''}
+                onClick={() => goToSection('class')}
+                disabled={lesson.number !== 1}
+                aria-current={lesson.number === 1 ? 'page' : undefined}
+              >
                 <span className={`lesson-number ${completed.includes(lesson.number) ? 'done' : ''}`}>{completed.includes(lesson.number) ? <Check size={13} /> : lesson.number}</span>
                 <span><b>{lesson.title}</b><small>{lesson.topics[0]}</small></span>
                 <ChevronRight size={15} />
