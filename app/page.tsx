@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 import {
   ArrowLeft,
@@ -64,9 +64,14 @@ export default function Home() {
     const saved = window.localStorage.getItem('oop2-completed');
     return saved ? JSON.parse(saved) : [];
   });
-  const [menuOpen, setMenuOpen] = useState(false);
+  const [drawerMode, setDrawerMode] = useState<'closed' | 'menu' | 'search'>('closed');
+  const [isMobile, setIsMobile] = useState(false);
   const [answers, setAnswers] = useState<number[]>([]);
   const [copied, setCopied] = useState('');
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+  const sidebarRef = useRef<HTMLElement>(null);
 
   const matches = useMemo(() => {
     const keyword = query.trim().toLowerCase();
@@ -75,6 +80,74 @@ export default function Home() {
   }, [query]);
 
   const progress = Math.round((completed.length / lessons.length) * 100);
+  const menuOpen = drawerMode !== 'closed';
+  const menuModalOpen = isMobile && drawerMode === 'menu';
+  const closeMenu = useCallback((restoreFocus = true) => {
+    if (restoreFocus && isMobile && drawerMode === 'menu') menuButtonRef.current?.focus({ preventScroll: true });
+    setDrawerMode('closed');
+  }, [drawerMode, isMobile]);
+
+  useEffect(() => {
+    const media = window.matchMedia('(max-width: 760px)');
+    const update = () => {
+      setIsMobile(media.matches);
+      if (!media.matches) setDrawerMode('closed');
+    };
+    update();
+    media.addEventListener('change', update);
+    return () => media.removeEventListener('change', update);
+  }, []);
+
+  useEffect(() => {
+    if (!sidebarRef.current || (isMobile && !menuOpen)) return;
+    const activeItem = sidebarRef.current.querySelector<HTMLElement>('[aria-current="page"]');
+    if (!activeItem) return;
+    const sidebarBounds = sidebarRef.current.getBoundingClientRect();
+    const itemBounds = activeItem.getBoundingClientRect();
+    if (itemBounds.top < sidebarBounds.top || itemBounds.bottom > sidebarBounds.bottom) {
+      activeItem.scrollIntoView({
+        behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+        block: 'nearest',
+      });
+    }
+  }, [isMobile, menuOpen]);
+
+  useEffect(() => {
+    if (!menuModalOpen || !sidebarRef.current) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        closeMenu();
+        return;
+      }
+      if (event.key !== 'Tab' || !sidebarRef.current) return;
+      const focusable = [...sidebarRef.current.querySelectorAll<HTMLElement>('a[href], button:not([disabled])')];
+      if (!focusable.length) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      const active = document.activeElement;
+      if (!sidebarRef.current.contains(active)) {
+        event.preventDefault();
+        (event.shiftKey ? last : first).focus();
+      } else if (event.shiftKey && active === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && active === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    window.requestAnimationFrame(() => closeButtonRef.current?.focus({ preventScroll: true }));
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [closeMenu, menuModalOpen]);
 
   function toggleComplete() {
     const next = completed.includes(1) ? completed.filter((item) => item !== 1) : [...completed, 1];
@@ -83,13 +156,14 @@ export default function Home() {
   }
 
   function goToSection(id: string) {
-    setMenuOpen(false);
+    closeMenu();
     document.querySelector(`#${id}`)?.scrollIntoView({ behavior: 'smooth' });
   }
 
   function handleSearchChange(value: string) {
     setQuery(value);
-    if (value.trim()) setMenuOpen(true);
+    if (value.trim()) setDrawerMode('search');
+    else if (drawerMode === 'search') setDrawerMode('closed');
   }
 
   function toggleAnswer(number: number) {
@@ -112,32 +186,43 @@ export default function Home() {
         <label className="search-box">
           <Search size={17} />
           <input
+            ref={searchInputRef}
             value={query}
             onChange={(event) => handleSearchChange(event.target.value)}
-            onFocus={() => query.trim() && setMenuOpen(true)}
+            onFocus={() => query.trim() && setDrawerMode('search')}
             placeholder="개념이나 코드 검색"
             aria-label="개념이나 코드 검색"
             aria-controls="lesson-sidebar"
           />
-          {query && <button onClick={() => { setQuery(''); setMenuOpen(false); }} aria-label="검색어 지우기"><X size={16} /></button>}
+          {query && <button onClick={() => { setQuery(''); setDrawerMode('closed'); window.requestAnimationFrame(() => searchInputRef.current?.focus()); }} aria-label="검색어 지우기"><X size={16} /></button>}
         </label>
         <button
+          ref={menuButtonRef}
           className="mobile-menu"
-          onClick={() => setMenuOpen(!menuOpen)}
-          aria-label={menuOpen ? '목차 닫기' : '목차 열기'}
-          aria-expanded={menuOpen}
+          onClick={() => drawerMode === 'menu' ? closeMenu() : setDrawerMode('menu')}
+          aria-label={drawerMode === 'menu' ? '목차 닫기' : '목차 열기'}
+          aria-expanded={drawerMode === 'menu'}
           aria-controls="lesson-sidebar"
         >
-          {menuOpen ? <X size={21} /> : <Menu size={21} />}
+          {drawerMode === 'menu' ? <X size={21} /> : <Menu size={21} />}
         </button>
         <div className="header-progress" aria-label={`전체 진도 ${progress}%`}><span>{progress}%</span><div><i style={{ width: `${progress}%` }} /></div></div>
       </header>
 
       <div className="workspace" id="top">
-        {menuOpen && <button className="sidebar-backdrop" type="button" aria-label="목차 닫기" onClick={() => setMenuOpen(false)} />}
-        <aside className={`sidebar ${menuOpen ? 'open' : ''}`} id="lesson-sidebar" aria-label="강의 탐색">
+        {menuModalOpen && <button className="sidebar-backdrop" type="button" aria-label="목차 닫기" onClick={() => closeMenu()} />}
+        <aside
+          ref={sidebarRef}
+          className={`sidebar ${menuOpen ? 'open' : ''} ${menuModalOpen ? 'menu-modal' : ''}`}
+          id="lesson-sidebar"
+          aria-label="강의 탐색"
+          role={menuModalOpen ? 'dialog' : undefined}
+          aria-modal={menuModalOpen ? true : undefined}
+          aria-hidden={isMobile && !menuOpen ? true : undefined}
+          inert={isMobile && !menuOpen ? true : undefined}
+        >
           <a className="hub-back" href="https://hyunchanwi.github.io/study-hub/"><ArrowLeft size={15} /> 전체 과목</a>
-          <div className="sidebar-heading"><span>강의 노트</span><small>{completed.length} / {lessons.length} 완료</small></div>
+          <div className="sidebar-heading"><span>강의 노트</span><small>{completed.length} / {lessons.length} 완료</small><button ref={closeButtonRef} className="sidebar-close" type="button" onClick={() => closeMenu()} aria-label="목차 닫기"><X size={20} /></button></div>
           <nav aria-label="강의 목차">
             {lessons.map((lesson) => (
               <button
