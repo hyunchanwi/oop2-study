@@ -16,10 +16,10 @@ export const lessons: Lesson[] = [
   },
   {
     number: 2,
-    title: '다음 강의',
-    description: '다음 강의자료가 추가되면 같은 형식으로 정리합니다.',
-    topics: ['자료 추가 예정'],
-    status: 'planned',
+    title: '클래스 심화',
+    description: 'Time 클래스 사례를 따라 생성자와 소멸자, const 멤버, 합성, friend, this, static 멤버를 연결해 학습합니다.',
+    topics: ['Time 클래스', '생성·소멸', 'const 멤버', '합성·friend', 'this·static'],
+    status: 'ready',
   },
 ];
 
@@ -35,4 +35,18 @@ export const sectionIndex = [
   { id: 'pointers', title: '포인터와 메모리', keywords: 'address dereference reference pointer ampersand asterisk 주소 역참조' },
   { id: 'const', title: '포인터와 const', keywords: '상수 포인터 데이터 변경 금지' },
   { id: 'check', title: '확인 문제', keywords: '퀴즈 정답 해설 복습' },
+];
+
+export const weekTwoSectionIndex = [
+  { id: 'time-case', title: 'Time 클래스 사례', keywords: 'time class interface implementation include guard setTime validation 예외' },
+  { id: 'class-scope', title: '클래스 범위와 멤버 접근', keywords: 'scope object reference pointer dot arrow handle access utility predicate helper' },
+  { id: 'default-arguments', title: '생성자 기본 인수', keywords: 'constructor default argument explicit 재컴파일 기본값' },
+  { id: 'destructor', title: '소멸자와 호출 순서', keywords: 'destructor tilde scope global local static reverse order 수명' },
+  { id: 'encapsulation-trap', title: '캡슐화 함정과 대입', keywords: 'private reference pointer lvalue memberwise copy assignment 얕은 복사' },
+  { id: 'const-members', title: 'const 객체와 멤버 함수', keywords: 'const object member function getter constructor destructor compile error' },
+  { id: 'composition', title: '합성과 초기화 리스트', keywords: 'composition has-a member initializer list declaration order Date Employee' },
+  { id: 'friend', title: 'friend 함수와 클래스', keywords: 'friend function class nonmember private symmetric transitive grant' },
+  { id: 'this-pointer', title: 'this 포인터와 연쇄 호출', keywords: 'this pointer implicit argument naming collision cascaded call return reference' },
+  { id: 'static-members', title: 'static 클래스 멤버', keywords: 'static data member function shared class-wide count scope resolution' },
+  { id: 'week2-check', title: '2주차 확인 문제', keywords: 'quiz 정답 해설 복습 chapter 9' },
 ];

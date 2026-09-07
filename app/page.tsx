@@ -24,7 +24,8 @@ import {
   Target,
   X,
 } from 'lucide-react';
-import { lessons, sectionIndex } from '../content/lessons';
+import { lessons, sectionIndex, weekTwoSectionIndex } from '../content/lessons';
+import { WeekTwo } from './week-two';
 
 const gradeBookCode = `class GradeBook {
 public:
@@ -58,6 +59,7 @@ void printName(const string& name);        // 복사 없이 읽기
 void renameWithPointer(string* name);      // 주소로 원본 수정`;
 
 export default function Home() {
+  const [activeWeek, setActiveWeek] = useState(1);
   const [query, setQuery] = useState('');
   const [completed, setCompleted] = useState<number[]>(() => {
     if (typeof window === 'undefined') return [];
@@ -73,11 +75,13 @@ export default function Home() {
   const searchInputRef = useRef<HTMLInputElement>(null);
   const sidebarRef = useRef<HTMLElement>(null);
 
+  const activeSections = activeWeek === 1 ? sectionIndex : weekTwoSectionIndex;
+  const activeLesson = lessons[activeWeek - 1];
   const matches = useMemo(() => {
     const keyword = query.trim().toLowerCase();
-    if (!keyword) return sectionIndex;
-    return sectionIndex.filter((section) => `${section.title} ${section.keywords}`.toLowerCase().includes(keyword));
-  }, [query]);
+    if (!keyword) return activeSections;
+    return activeSections.filter((section) => `${section.title} ${section.keywords}`.toLowerCase().includes(keyword));
+  }, [activeSections, query]);
 
   const progress = Math.round((completed.length / lessons.length) * 100);
   const menuOpen = drawerMode !== 'closed';
@@ -110,7 +114,7 @@ export default function Home() {
         block: 'nearest',
       });
     }
-  }, [isMobile, menuOpen]);
+  }, [activeWeek, isMobile, menuOpen]);
 
   useEffect(() => {
     if (!menuModalOpen || !sidebarRef.current) return;
@@ -150,9 +154,17 @@ export default function Home() {
   }, [closeMenu, menuModalOpen]);
 
   function toggleComplete() {
-    const next = completed.includes(1) ? completed.filter((item) => item !== 1) : [...completed, 1];
+    const next = completed.includes(activeWeek) ? completed.filter((item) => item !== activeWeek) : [...completed, activeWeek];
     setCompleted(next);
     window.localStorage.setItem('oop2-completed', JSON.stringify(next));
+  }
+
+  function changeWeek(week: number) {
+    setActiveWeek(week);
+    setQuery('');
+    setAnswers([]);
+    closeMenu(false);
+    window.requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: 'smooth' }));
   }
 
   function goToSection(id: string) {
@@ -227,10 +239,10 @@ export default function Home() {
             {lessons.map((lesson) => (
               <button
                 key={lesson.number}
-                className={lesson.number === 1 ? 'active' : ''}
-                onClick={() => goToSection('class')}
-                disabled={lesson.number !== 1}
-                aria-current={lesson.number === 1 ? 'page' : undefined}
+                className={lesson.number === activeWeek ? 'active' : ''}
+                onClick={() => changeWeek(lesson.number)}
+                disabled={lesson.status !== 'ready'}
+                aria-current={lesson.number === activeWeek ? 'page' : undefined}
               >
                 <span className={`lesson-number ${completed.includes(lesson.number) ? 'done' : ''}`}>{completed.includes(lesson.number) ? <Check size={13} /> : lesson.number}</span>
                 <span><b>{lesson.title}</b><small>{lesson.topics[0]}</small></span>
@@ -239,7 +251,7 @@ export default function Home() {
             ))}
           </nav>
           <div className="section-search">
-            <span>{query ? `검색 결과 ${matches.length}개` : '1주차 개념'}</span>
+            <span>{query ? `검색 결과 ${matches.length}개` : `${activeWeek}주차 개념`}</span>
             {matches.map((section) => <button key={section.id} onClick={() => goToSection(section.id)}>{section.title}<ArrowRight size={12} /></button>)}
             {matches.length === 0 && <p>일치하는 개념이 없어요.</p>}
           </div>
@@ -249,17 +261,17 @@ export default function Home() {
         <main className="content" id="lesson">
           <section className="lesson-hero">
             <div>
-              <div className="eyebrow">WEEK 01 · 학습 가능</div>
-              <h1>C++ 핵심 복습과<br />클래스 기초</h1>
-              <p>{lessons[0].description}</p>
-              <div className="topic-tags">{lessons[0].topics.map((topic) => <span key={topic}>{topic}</span>)}</div>
+              <div className="eyebrow">WEEK {String(activeWeek).padStart(2, '0')} · 학습 가능</div>
+              <h1>{activeWeek === 1 ? <>C++ 핵심 복습과<br />클래스 기초</> : <>Classes:<br />A Deeper Look</>}</h1>
+              <p>{activeLesson.description}</p>
+              <div className="topic-tags">{activeLesson.topics.map((topic) => <span key={topic}>{topic}</span>)}</div>
             </div>
-            <button className={`complete-button ${completed.includes(1) ? 'completed' : ''}`} onClick={toggleComplete}>
-              {completed.includes(1) ? <><Check size={18} /> 학습 완료</> : <><Target size={18} /> 완료로 표시</>}
+            <button className={`complete-button ${completed.includes(activeWeek) ? 'completed' : ''}`} onClick={toggleComplete}>
+              {completed.includes(activeWeek) ? <><Check size={18} /> 학습 완료</> : <><Target size={18} /> 완료로 표시</>}
             </button>
           </section>
 
-          <div className="lesson-stack">
+          {activeWeek === 1 && <div className="lesson-stack">
             <section className="note-card intro-card" id="class">
               <span className="section-kicker"><Sparkles size={16} /> 먼저 쉽게</span>
               <h2>클래스는 ‘새로운 자료형의 설계도’예요</h2>
@@ -417,12 +429,13 @@ export default function Home() {
               <div><span>02</span><p><b>private</b>은 데이터를 보호하고 public 함수가 접근을 통제한다.</p></div>
               <div><span>03</span><p><b>전달 방식</b>은 복사·원본 수정·읽기 전용이라는 의도를 코드에 드러낸다.</p></div>
             </section>
-          </div>
+          </div>}
+          {activeWeek === 2 && <WeekTwo copied={copied} answers={answers} onCopy={copyCode} onToggleAnswer={toggleAnswer} />}
         </main>
 
         <aside className="right-rail">
-          <div className="rail-block"><span className="rail-label">이 페이지에서</span>{sectionIndex.map((section) => <a key={section.id} href={`#${section.id}`}>{section.title}</a>)}</div>
-          <div className="memory-card"><Lightbulb size={18} /><b>오늘의 기억 문장</b><p>클래스는 설계도, 객체는 설계도로 만든 실체다.</p></div>
+          <div className="rail-block"><span className="rail-label">이 페이지에서</span>{activeSections.map((section) => <a key={section.id} href={`#${section.id}`}>{section.title}</a>)}</div>
+          <div className="memory-card"><Lightbulb size={18} /><b>오늘의 기억 문장</b><p>{activeWeek === 1 ? '클래스는 설계도, 객체는 설계도로 만든 실체다.' : '객체의 수명과 공유 범위를 알면 클래스의 동작을 예측할 수 있다.'}</p></div>
         </aside>
       </div>
     </div>
