@@ -107,6 +107,19 @@ button,a { -webkit-tap-highlight-color:transparent; }
 .detail-body code,.range-choices code,.passing-grid code,.symbol-table code { color:var(--teal); font-family:var(--font-geist-mono),monospace; font-size:.92em; }
 .week-two-stack .subcopy { margin-top:18px; }
 .week-two-stack .code-card { margin-top:20px; border-radius:17px; box-shadow:none; }
+.code-walkthrough { overflow:hidden; margin-top:12px; border:1px solid #cfe2df; border-radius:16px; background:#fbfdfc; }
+.walkthrough-heading { display:flex; align-items:center; gap:11px; padding:16px 18px; border-bottom:1px solid #dbe9e7; background:#f1f8f6; color:var(--teal); }
+.walkthrough-heading>svg { flex:0 0 auto; }
+.walkthrough-heading small { display:block; margin-bottom:3px; font-size:8px; font-weight:900; letter-spacing:.1em; text-transform:uppercase; }
+.walkthrough-heading h3 { margin:0; color:var(--ink); font-size:14px; letter-spacing:-.02em; }
+.code-walkthrough ol { margin:0; padding:0; list-style:none; }
+.code-walkthrough li { display:grid; grid-template-columns:32px minmax(0,1fr); gap:12px; padding:16px 18px; border-top:1px solid #e5efed; }
+.code-walkthrough li:first-child { border-top:0; }
+.walkthrough-number { display:grid; place-items:center; align-self:start; width:30px; height:30px; border-radius:9px; background:var(--navy); color:var(--cyan); font-family:var(--font-geist-mono),monospace; font-size:9px; font-weight:900; }
+.code-walkthrough li>div { min-width:0; }
+.code-walkthrough li code { display:block; overflow-wrap:anywhere; margin-bottom:8px; color:var(--teal); font-family:var(--font-geist-mono),monospace; font-size:11px; font-weight:800; line-height:1.55; }
+.code-walkthrough li b { display:block; margin-bottom:4px; color:var(--ink); font-size:12px; }
+.code-walkthrough li p { margin:0; color:var(--muted); font-size:11px; line-height:1.72; }
 .handle-grid article>code:last-child { overflow-wrap:anywhere; }
 .friend-rules article p { margin:0; color:var(--muted); font-size:9px; line-height:1.55; }
 .constructor-cases { display:grid; grid-template-columns:1fr 1fr; overflow:hidden; margin-top:22px; border:1px solid var(--line); border-radius:15px; background:var(--line); gap:1px; }
