@@ -1,4 +1,5 @@
 'use client';
+import { ClaudeStudyNotes, StudyNotesJump } from './claude-study-notes';
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
@@ -259,6 +260,7 @@ export default function Home() {
         </aside>
 
         <main className="content" id="lesson">
+          <StudyNotesJump>주차·Lab별 상세 정리·내 질문 보기 ↓</StudyNotesJump>
           <section className="lesson-hero">
             <div>
               <div className="eyebrow">WEEK {String(activeWeek).padStart(2, '0')} · 학습 가능</div>
@@ -431,7 +433,8 @@ export default function Home() {
             </section>
           </div>}
           {activeWeek === 2 && <WeekTwo copied={copied} answers={answers} onCopy={copyCode} onToggleAnswer={toggleAnswer} />}
-        </main>
+          <ClaudeStudyNotes key={activeWeek} initialScope={activeWeek === 2 ? 'week2' : 'week1'} />
+    </main>
 
         <aside className="right-rail">
           <div className="rail-block"><span className="rail-label">이 페이지에서</span>{activeSections.map((section) => <a key={section.id} href={`#${section.id}`}>{section.title}</a>)}</div>
