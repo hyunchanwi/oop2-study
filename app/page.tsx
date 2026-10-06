@@ -25,7 +25,8 @@ import {
   Target,
   X,
 } from 'lucide-react';
-import { lessons, sectionIndex, weekTwoSectionIndex } from '../content/lessons';
+import { lessons, sectionIndex, weekTwoSectionIndex, weeklySectionIndex } from '../content/lessons';
+import { WeeklyStudy } from './weekly-study';
 import { WeekTwo } from './week-two';
 
 const gradeBookCode = `class GradeBook {
@@ -76,7 +77,7 @@ export default function Home() {
   const searchInputRef = useRef<HTMLInputElement>(null);
   const sidebarRef = useRef<HTMLElement>(null);
 
-  const activeSections = activeWeek === 1 ? sectionIndex : weekTwoSectionIndex;
+  const activeSections = useMemo(() => activeWeek === 1 ? sectionIndex : activeWeek === 2 ? weekTwoSectionIndex : weeklySectionIndex(activeWeek), [activeWeek]);
   const activeLesson = lessons[activeWeek - 1];
   const matches = useMemo(() => {
     const keyword = query.trim().toLowerCase();
@@ -264,7 +265,7 @@ export default function Home() {
           <section className="lesson-hero">
             <div>
               <div className="eyebrow">WEEK {String(activeWeek).padStart(2, '0')} · 학습 가능</div>
-              <h1>{activeWeek === 1 ? <>C++ 핵심 복습과<br />클래스 기초</> : <>Classes:<br />A Deeper Look</>}</h1>
+              <h1>{activeLesson.title}</h1>
               <p>{activeLesson.description}</p>
               <div className="topic-tags">{activeLesson.topics.map((topic) => <span key={topic}>{topic}</span>)}</div>
             </div>
@@ -433,12 +434,12 @@ export default function Home() {
             </section>
           </div>}
           {activeWeek === 2 && <WeekTwo copied={copied} answers={answers} onCopy={copyCode} onToggleAnswer={toggleAnswer} />}
-          <ClaudeStudyNotes key={activeWeek} initialScope={activeWeek === 2 ? 'week2' : 'week1'} />
+          {activeWeek === 1 ? <ClaudeStudyNotes initialScope="week1" locked /> : <WeeklyStudy week={activeWeek} />}
     </main>
 
         <aside className="right-rail">
           <div className="rail-block"><span className="rail-label">이 페이지에서</span>{activeSections.map((section) => <a key={section.id} href={`#${section.id}`}>{section.title}</a>)}</div>
-          <div className="memory-card"><Lightbulb size={18} /><b>오늘의 기억 문장</b><p>{activeWeek === 1 ? '클래스는 설계도, 객체는 설계도로 만든 실체다.' : '객체의 수명과 공유 범위를 알면 클래스의 동작을 예측할 수 있다.'}</p></div>
+          <div className="memory-card"><Lightbulb size={18} /><b>오늘의 기억 문장</b><p>{activeWeek === 1 ? '클래스는 설계도, 객체는 설계도로 만든 실체다.' : activeWeek <= 3 ? '객체의 수명과 공유 범위를 알면 클래스의 동작을 예측할 수 있다.' : activeWeek === 4 ? '연산식이 어떤 객체의 어떤 함수 호출로 바뀌는지 추적한다.' : '메모리의 소유권·복사·해제를 한 약속으로 설계한다.'}</p></div>
         </aside>
       </div>
     </div>
