@@ -1,3 +1,7 @@
+import { weeklyCatalog } from '../src/weekly-catalog';
+import { weeklyLectureSummaries } from '../src/weekly-catalog';
+import { lectureSummaries } from '../src/lecture-summaries';
+
 export type Lesson = {
   number: number;
   title: string;
@@ -21,7 +25,27 @@ export const lessons: Lesson[] = [
     topics: ['Time 클래스', '생성·소멸', 'const 멤버', '합성·friend', 'this·static'],
     status: 'ready',
   },
+  ...weeklyCatalog.filter((week) => week.number >= 3).map((week): Lesson => ({
+    number: week.number,
+    title: week.title,
+    description: week.summary,
+    topics: week.summary.split('·').map((topic) => topic.trim()),
+    status: 'ready',
+  })),
 ];
+
+export function weeklySectionIndex(weekNumber: number) {
+  const week = weeklyCatalog.find((entry) => entry.number === weekNumber);
+  const summaries = [...lectureSummaries, ...weeklyLectureSummaries];
+  return [
+    { id: `week${weekNumber}-overview`, title: '자료와 주차 진도', keywords: week?.summary ?? '' },
+    ...summaries.filter((summary) => week?.lectureIds.includes(summary.id)).map((summary) => ({
+      id: `learning-${summary.id}`,
+      title: summary.title,
+      keywords: summary.sections.map((section) => section.title).join(' '),
+    })),
+  ];
+}
 
 export const sectionIndex = [
   { id: 'class', title: '클래스와 객체', keywords: '사용자 정의 자료형 설계도 인스턴스 도트 연산자' },
