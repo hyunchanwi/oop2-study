@@ -279,3 +279,8 @@ button:focus-visible,a:focus-visible,input:focus-visible { outline:3px solid rgb
 .claude-notes-source-status{font-size:13px;line-height:1.9}
 .claude-notes-outline a:focus-visible{outline:3px solid #d59b20;outline-offset:3px}
 @media(max-width:600px){.claude-notes-card h4{font-size:18px;padding:16px}.claude-notes-topic h5{font-size:17px}.claude-notes-formula,.claude-notes-code{font-size:13px;padding:12px}.claude-notes-group-title{font-size:20px}}
+.claude-notes-table-wrap{max-width:100%;overflow-x:auto;margin:18px 0}
+.claude-notes-table{width:100%;border-collapse:collapse;font-size:14px;line-height:1.7}
+.claude-notes-table caption{text-align:left;font-weight:600;margin-bottom:8px}
+.claude-notes-table th,.claude-notes-table td{padding:10px;text-align:left;border:1px solid #dce3da}
+.claude-notes-table th{background:#f4f7f1;color:#164b37}

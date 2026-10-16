@@ -1,6 +1,5 @@
-import { weeklyCatalog } from '../src/weekly-catalog';
-import { weeklyLectureSummaries } from '../src/weekly-catalog';
-import { lectureSummaries } from '../src/lecture-summaries';
+import { weeklyCatalog } from '../src/weekly-catalog.ts';
+import { weeklyStudyIndex } from '../src/study-data.ts';
 
 export type Lesson = {
   number: number;
@@ -35,16 +34,7 @@ export const lessons: Lesson[] = [
 ];
 
 export function weeklySectionIndex(weekNumber: number) {
-  const week = weeklyCatalog.find((entry) => entry.number === weekNumber);
-  const summaries = [...lectureSummaries, ...weeklyLectureSummaries];
-  return [
-    { id: `week${weekNumber}-overview`, title: '자료와 주차 진도', keywords: week?.summary ?? '' },
-    ...summaries.filter((summary) => week?.lectureIds.includes(summary.id)).map((summary) => ({
-      id: `learning-${summary.id}`,
-      title: summary.title,
-      keywords: summary.sections.map((section) => section.title).join(' '),
-    })),
-  ];
+  return weeklyStudyIndex(weekNumber);
 }
 
 export const sectionIndex = [

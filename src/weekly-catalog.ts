@@ -40,10 +40,12 @@ export const weeklyCatalog = [
     "lectureIds": [
       "oop-lifetime",
       "oop-friend-this-static",
-      "oop-week3-lab"
+      "oop-week3-lab",
+      "gpt-oop-week3-exceptions"
     ],
     "noteScopes": [
-      "week2"
+      "week2",
+      "week3"
     ],
     "materials": [
       "2주차/chap09_10e.pdf (연속 수업)",
@@ -56,10 +58,12 @@ export const weeklyCatalog = [
     "title": "연산자 중복 · Lab 4",
     "summary": "Chapter 10 전반 · Date·Time·스트림·비교",
     "lectureIds": [
-      "oop-week4-operators"
+      "oop-week4-operators",
+      "gpt-oop-week4-increment"
     ],
     "noteScopes": [
-      "ch10-general"
+      "ch10-general",
+      "week4"
     ],
     "materials": [
       "4주차/chap10_10e.pdf",
@@ -72,14 +76,33 @@ export const weeklyCatalog = [
     "title": "동적 메모리와 Array · Lab 5",
     "summary": "Chapter 10 후반 · 깊은 복사·첨자·소유권",
     "lectureIds": [
-      "oop-week5-memory"
+      "oop-week5-memory",
+      "gpt-oop-week5-equation"
     ],
-    "noteScopes": [],
+    "noteScopes": ["week5"],
     "materials": [
       "4주차/chap10_10e.pdf (후반 연속 수업)",
       "5주차/OOP2_Lab5.pdf"
     ],
-    "evidence": "5-1·5-2 전사본과 Lab5 텍스트를 기준으로 새로 정리했습니다. 이 범위의 추가 Claude 질문 원문은 확인되지 않아 질문을 만들어 넣지 않습니다."
+    "evidence": "5-1·5-2 전사본과 Lab5 텍스트 기반 정리를 보존하고 GPT의 Equation·Array 실제 질문을 추가했습니다. 기존 Claude 질문과 출처를 구분하며 편집 코드는 원본 복원이 아닙니다."
+  },
+  {
+    "number": 6,
+    "title": "상속과 Point → Square · Lab 6",
+    "summary": "Chapter 11 · 접근 권한·생성소멸·vector·정렬",
+    "lectureIds": ["gpt-oop-week6-inheritance", "gpt-oop-week6-lab"],
+    "noteScopes": ["week6"],
+    "materials": ["6주차/chap11_10e.pdf", "6주차/OOP2_Lab6.pdf"],
+    "evidence": "6주차 Chap11·Lab6 GPT 학습 대화와 남아 있는 사용자 코드를 기준으로 연결했습니다. 세부 페이지 이미지·전사 전체를 재검증한 표시는 아니며 편집 코드는 원본과 구분합니다."
+  },
+  {
+    "number": 7,
+    "title": "다형성과 가상 함수 · Lab 7",
+    "summary": "Chapter 12 p.34~45 · virtual·추상 클래스·Shape 입력",
+    "lectureIds": ["gpt-oop-week7-polymorphism", "gpt-oop-week7-shape-input"],
+    "noteScopes": ["week7"],
+    "materials": ["7주차/chap12_10e.pdf", "7주차/OOP2_Lab7_Iclass.pdf"],
+    "evidence": "최신 7주차 폴더에서 Chap12·Lab7·7-1 전사 파일 존재를 확인했습니다. p.34~45 학습 위치와 Shape 질문은 GPT 대화 기준이며 해당 전사 본문·전체 페이지 이미지는 재대조하지 않았습니다."
   }
 ];
 

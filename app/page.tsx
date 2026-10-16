@@ -28,6 +28,8 @@ import {
 import { lessons, sectionIndex, weekTwoSectionIndex, weeklySectionIndex } from '../content/lessons';
 import { WeeklyStudy } from './weekly-study';
 import { WeekTwo } from './week-two';
+import { weekFromSearch, weekHref } from '../src/week-navigation';
+import { afterStudyRender, hashTarget, revealStudyTarget } from '../src/study-navigation';
 
 const gradeBookCode = `class GradeBook {
 public:
@@ -76,6 +78,27 @@ export default function Home() {
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const sidebarRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    let cancelRestore = () => {};
+    const restoreWeek = () => {
+      cancelRestore();
+      setActiveWeek(weekFromSearch(window.location.search, lessons.map((lesson) => lesson.number)));
+      setQuery('');
+      setAnswers([]);
+      setDrawerMode('closed');
+      const target = hashTarget(window.location.hash);
+      if (target) cancelRestore = afterStudyRender(() => revealStudyTarget(target));
+    };
+    restoreWeek();
+    window.addEventListener('popstate', restoreWeek);
+    window.addEventListener('hashchange', restoreWeek);
+    return () => {
+      cancelRestore();
+      window.removeEventListener('popstate', restoreWeek);
+      window.removeEventListener('hashchange', restoreWeek);
+    };
+  }, []);
 
   const activeSections = useMemo(() => activeWeek === 1 ? sectionIndex : activeWeek === 2 ? weekTwoSectionIndex : weeklySectionIndex(activeWeek), [activeWeek]);
   const activeLesson = lessons[activeWeek - 1];
@@ -162,6 +185,8 @@ export default function Home() {
   }
 
   function changeWeek(week: number) {
+    const href = weekHref(window.location.href, week);
+    if (href !== window.location.pathname + window.location.search + window.location.hash) window.history.pushState(null, '', href);
     setActiveWeek(week);
     setQuery('');
     setAnswers([]);
@@ -171,7 +196,7 @@ export default function Home() {
 
   function goToSection(id: string) {
     closeMenu();
-    document.querySelector(`#${id}`)?.scrollIntoView({ behavior: 'smooth' });
+    revealStudyTarget(id);
   }
 
   function handleSearchChange(value: string) {

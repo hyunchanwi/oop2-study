@@ -4,6 +4,7 @@ export type LectureSection = {
   formula: string;
   example: string;
   code: string;
+  table?: { headers: string[]; rows: string[][] };
 };
 
 export type LectureSummary = {
@@ -15,6 +16,7 @@ export type LectureSummary = {
   recordingStatus: string;
   overview: string;
   sections: LectureSection[];
+  sourceStatus?: string;
 };
 
 export const lectureSummaries: LectureSummary[] = [
