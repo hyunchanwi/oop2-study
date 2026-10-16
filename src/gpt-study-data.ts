@@ -33,7 +33,7 @@ export const gptLectureSummaries: LectureSummary[] = [
       {
         title: '반환형 앞·매개변수·함수 뒤 const를 따로 읽는다',
         paragraphs: [
-          'const Array& operator=(const Array& right)에는 반환 참조의 const와 오른쪽 매개변수의 const가 있다. 함수 뒤에는 const가 없으므로 왼쪽 객체의 size·ptr는 바꿀 수 있다. 반환값이 const 참조라는 이유로 함수 본문 전체가 읽기 전용이 되는 것은 아니다.',
+          'const std::string& getName() const에서 앞의 const는 반환 참조를 통해 이름을 수정하지 못하게 하고, 뒤의 const는 이 호출로 현재 객체의 일반 멤버를 수정하지 못하게 한다. 서로 다른 위치가 서로 다른 대상을 제한한다. 참조 반환은 멤버의 수명 안에서만 사용한다. 대입 연산자에서 const를 구분하는 예는 연산자를 배우는 5주차에서 이어서 다룬다.',
           'const string& first는 문자열을 복사하지 않고 참조하되 그 참조로 원본을 변경하지 않는 매개변수다. 초기화 목록의 name{first}는 별도 string 멤버를 구성한다. string getName() const의 앞 string은 반환형, 뒤 const는 현재 객체에 대한 변경 제한이다. cout만 하는 void 함수와 값을 반환하는 getter를 구분한다.',
         ], formula: 'const T& 반환: 호출자가 반환 참조로 수정 불가\nconst T& 인수: 함수가 그 참조로 인수를 수정 불가\nf() const: 이 호출로 현재 객체의 일반 멤버 수정 제한', example: '', code: '',
       },
@@ -116,7 +116,11 @@ export const gptLectureSummaries: LectureSummary[] = [
         paragraphs: [
           'lhs.coeff==rhs.coeff는 주소 비교다. 계수 값의 동등성을 확인하려면 크기를 비교한 뒤 모든 원소를 끝까지 검사하고 불일치 때 false, 루프를 다 통과한 뒤 true를 반환한다. 루프 안에서 첫 원소 결과를 바로 반환하면 뒤 원소를 검사하지 못한다.',
           'degree=size-1은 맨 앞 계수가 0이 아니고 size가 유효하다는 저장 규약 아래의 차수다. 선행 0을 허용하면 정규화가 필요하다. 출력에서는 first 플래그로 첫 유효 항 앞의 불필요한 +를 막고 0 계수는 건너뛴다. 모두 0일 때 0을 출력하는 경우도 따로 처리한다.',
-        ], formula: '', example: '아래 완성된 편집 예제는 깊은 복사·대입·뺄셈·scalar 계산을 검증하기 위한 작은 클래스입니다. Lab5 원본 전체 코드나 제출 답안을 복원한 것이 아닙니다.',
+        ], formula: '', example: '다음 절의 코드는 메모리 소유와 연산을 검증하는 예이며 동등 비교·정규화·출력 연산자 전체를 구현한 것은 아닙니다.', code: '',
+      },
+      {
+        title: '종합 실행 검증: 깊은 복사·대입·뺄셈·scalar',
+        paragraphs: ['assert로 각 연산 뒤 계수와 원본 보존 여부를 검사한다. 복사본을 만든 뒤 원본을 바꾸어도 복사본은 그대로여야 하며, 자기 자신을 빼면 모든 계수가 0이어야 한다.'], formula: '', example: '아래 완성된 편집 예제는 깊은 복사·대입·뺄셈·scalar 계산을 검증하기 위한 작은 클래스입니다. Lab5 원본 전체 코드나 제출 답안을 복원한 것이 아닙니다.',
         code: '#include <algorithm>\n#include <cassert>\n#include <initializer_list>\n#include <iostream>\nclass Equation {\n    int size;\n    double* coeff;\npublic:\n    Equation(std::initializer_list<double> values)\n        : size(static_cast<int>(values.size())), coeff(new double[size]{}) {\n        std::copy(values.begin(), values.end(), coeff);\n    }\n    Equation(const Equation& rhs) : size(rhs.size), coeff(new double[size]) {\n        std::copy(rhs.coeff, rhs.coeff + size, coeff);\n    }\n    Equation& operator=(const Equation& rhs) {\n        if (this == &rhs) return *this;\n        double* next = new double[rhs.size];\n        std::copy(rhs.coeff, rhs.coeff + rhs.size, next);\n        delete[] coeff;\n        coeff = next; size = rhs.size;\n        return *this;\n    }\n    ~Equation() { delete[] coeff; }\n    Equation& operator-=(const Equation& rhs) {\n        int n = std::max(size, rhs.size);\n        double* next = new double[n]{};\n        for (int i=0; i<size; ++i) next[n-size+i] += coeff[i];\n        for (int i=0; i<rhs.size; ++i) next[n-rhs.size+i] -= rhs.coeff[i];\n        delete[] coeff; coeff = next; size = n; return *this;\n    }\n    Equation& operator*=(double rhs) {\n        for (int i=0; i<size; ++i) coeff[i] *= rhs;\n        return *this;\n    }\n    double at(int i) const { return coeff[i]; }\n};\nint main() {\n    Equation a{1,2,4}, b{3,5};\n    Equation copy{a}; a -= b;\n    assert(a.at(0)==1 && a.at(1)==-1 && a.at(2)==-1);\n    assert(copy.at(1)==2);\n    copy = a; a *= 2;\n    assert(copy.at(0)==1 && a.at(0)==2);\n    a -= a; assert(a.at(0)==0 && a.at(1)==0 && a.at(2)==0);\n    std::cout << "Equation checks passed\\n";\n}',
       },
     ],
@@ -198,6 +202,15 @@ export const gptLectureSummaries: LectureSummary[] = [
         ], formula: '기초 참조·포인터 + virtual → 실제 객체의 override\n기초 값 복사 → slicing 가능', example: '', code: '',
       },
       {
+        title: '같은 Base 참조에서 non-virtual과 virtual을 비교 실행한다',
+        paragraphs: [
+          '편집 예제에서 ref의 정적 타입은 Base&, 실제 참조 대상의 동적 타입은 Derived다. plain()은 비가상이라 Base의 구현, speak()는 가상이라 Derived의 override를 선택한다. 객체를 복사하지 않고 같은 참조로 두 호출을 비교한다.',
+          '마지막 Base copy=d는 별도 값 복사다. 파생 부분이 잘린 Base 객체가 만들어져 copy.speak()도 Base를 호출한다. 처음 두 호출과 달리 실제 객체 자체가 바뀐 상황이다.',
+        ], formula: 'ref.plain() → Base plain\nref.speak() → Derived virtual\ncopy.speak() → Base virtual', example: '아래는 강의 원본 복원이 아닌 독립 실행 가능한 편집 예제다.',
+        table: { headers: ['호출', '정적 타입', '실제 객체 타입', '출력'], rows: [['ref.plain()', 'Base&', 'Derived', 'Base plain'], ['ref.speak()', 'Base&', 'Derived', 'Derived virtual'], ['copy.speak()', 'Base', 'Base (slicing 후)', 'Base virtual']] },
+        code: '#include <iostream>\nstruct Base {\n    void plain() const { std::cout << "Base plain\\n"; }\n    virtual void speak() const { std::cout << "Base virtual\\n"; }\n    virtual ~Base() = default;\n};\nstruct Derived : Base {\n    void plain() const { std::cout << "Derived plain\\n"; }\n    void speak() const override { std::cout << "Derived virtual\\n"; }\n};\nint main() {\n    Derived d;\n    Base& ref = d;\n    ref.plain();\n    ref.speak();\n    Base copy = d;\n    copy.speak();\n}',
+      },
+      {
         title: '일반 가상 함수와 순수 가상 함수의 계약 차이',
         paragraphs: [
           '일반 virtual earnings()는 기초 구현을 제공하여 파생이 그대로 물려받거나 바꿀 수 있다. virtual double earnings() const = 0은 순수 가상 함수이며 그 함수를 가진 클래스는 추상 클래스라 직접 객체를 만들 수 없다. 구체 파생 클래스가 되려면 남은 순수 가상 함수를 모두 구현해야 한다.',
@@ -247,7 +260,7 @@ export const gptStudyNotes: (typeof studyNotes)[number][] = [
     source: 'GPT · 시험 대비 공부 계획', location: '이차방정식 입력 검증 질문 / 원본 코드 참조 손실',
     questionsAsked: ['a에 0을 입력하면 catch가 실행되는 부분은 어디인지, try/catch를 따로 작성해야 하는지 물었다.'],
     explanation: ['a=0 검증과 throw를 직접 작성해야 invalid_argument를 받을 수 있다. 대응 catch가 없으면 이 예외를 이 위치에서 처리하지 못한다.', '재입력은 catch 자체의 기능이 아니라 반복문이 입력을 다시 실행한 결과다. 성공 때 탈출하고 EOF·형식 실패 처리도 따로 정한다.'],
-    question: 'catch만 있고 a=0 검사·throw가 없다면 0 입력만으로 invalid_argument가 전달되는가?', answer: '아니다. 예외를 던지는 검증이 있어야 한다. 접힌 문제는 실제 질문을 바탕으로 별도 편집한 확인 문제다.',
+    question: 'catch만 있고 a=0 검사·throw가 없다면 0 입력만으로 invalid_argument가 전달되는가?', answer: '아니다. 예외를 던지는 검증이 있어야 한다. 이 확인 문제는 실제 질문을 바탕으로 별도 편집했다.',
   },
   {
     id: 'gpt-oop-q-array-const', scopes: ['week5'], chapter: 'Chapter 10·Lab 5', title: 'const인데 대입 함수에서 size를 바꿔도 되는가?',

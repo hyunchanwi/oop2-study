@@ -54,7 +54,8 @@ void test('표시하는 완성 편집 C++ 예제의 실제 출력·객체 상태
     { id: 'gpt-oop-week4-increment', input: '', output: '5 7 7\n' },
     { id: 'gpt-oop-week5-equation', input: '', output: 'Equation checks passed\n' },
     { id: 'gpt-oop-week6-lab', input: 'A 0 1 3\nB 2 3 2\n', output: 'B(2,3) side=2 area=4\nA(0,1) side=3 area=9\n' },
-    { id: 'gpt-oop-week7-polymorphism', input: '', output: '20\nDerived destroyed\nBase destroyed\n' },
+    { id: 'gpt-oop-week7-polymorphism', section: '기초 포인터로 지울 때는 가상 소멸자가 필요하다', input: '', output: '20\nDerived destroyed\nBase destroyed\n' },
+    { id: 'gpt-oop-week7-polymorphism', section: '같은 Base 참조에서 non-virtual과 virtual을 비교 실행한다', input: '', output: 'Base plain\nDerived virtual\nBase virtual\n' },
     { id: 'gpt-oop-week7-shape-input', input: 's 0 0 0 1\ny 0 0 0 1 3\nc 0 0 0 1 3\n', output: '4.19\n9.42\n3.14\n' },
   ];
   const tempParent = fileURLToPath(new URL('../.tmp/', import.meta.url));
@@ -62,7 +63,7 @@ void test('표시하는 완성 편집 C++ 예제의 실제 출력·객체 상태
   const temp = mkdtempSync(join(tempParent, 'gpt-examples-'));
   try {
     for (const example of cases) {
-      const code = gptLectureSummaries.find((lecture) => lecture.id === example.id)?.sections.find((section) => section.code.startsWith('#include'))?.code;
+      const code = gptLectureSummaries.find((lecture) => lecture.id === example.id)?.sections.find((section) => section.code.startsWith('#include') && (!example.section || section.title === example.section))?.code;
       assert.ok(code, example.id);
       const source = join(temp, `${example.id}.cpp`), binary = join(temp, example.id);
       writeFileSync(source, code);
